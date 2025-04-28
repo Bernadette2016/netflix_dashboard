@@ -84,16 +84,19 @@ with col2:
 
 # Row 2
 with col1:
-df.replace([np.inf, -np.inf], np.nan, inplace=True)
-df = df.dropna(subset=['release_year'])
+with col1:
+    df.replace([np.inf, -np.inf], np.nan, inplace=True)
+    df = df.dropna(subset=['release_year'])
 
-st.subheader("Distribution of Release Year")
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.histplot(df['release_year'], color='green', bins=30, kde=False, ax=ax)
-ax.set_title('Distribution of Release Year')
-ax.set_xlabel('Release Year')
-ax.set_ylabel('Movie Count')
-st.pyplot(fig)
+    st.subheader("Distribution of Release Year")
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    sns.histplot(df['release_year'], color='green', bins=30, kde=False, ax=ax)
+    ax.set_title('Distribution of Release Year')
+    ax.set_xlabel('Release Year')
+    ax.set_ylabel('Movie Count')
+    st.pyplot(fig)
+
 
 with col2:
     st.subheader("Distribution of Ratings")
