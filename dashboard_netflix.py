@@ -59,6 +59,45 @@ elif theme == "Light":
 
 st.sidebar.header("Filters")
 
+# 1. Filter by Type
+type_filter = st.sidebar.multiselect(
+    "Select Content Type:",
+    options=df['type'].unique(),
+    default=df['type'].unique()
+)
+
+# 2. Filter by Country
+country_filter = st.sidebar.multiselect(
+    "Select Country:",
+    options=df['country'].dropna().unique(),
+    default=df['country'].dropna().unique()
+)
+
+# 3. Filter by Release Year Range
+min_year = int(df['release_year'].min())
+max_year = int(df['release_year'].max())
+
+year_range = st.sidebar.slider(
+    "Select Release Year Range:",
+    min_value=min_year,
+    max_value=max_year,
+    value=(min_year, max_year)
+)
+
+# 4. Filter by Rating
+rating_filter = st.sidebar.multiselect(
+    "Select Rating:",
+    options=df['rating'].dropna().unique(),
+    default=df['rating'].dropna().unique()
+)
+
+df_filtered = df[
+    (df['type'].isin(type_filter)) &
+    (df['country'].isin(country_filter)) &
+    (df['release_year'].between(year_range[0], year_range[1])) &
+    (df['rating'].isin(rating_filter))
+]
+
 # Create 2 columns
 col1, col2 = st.columns(2)
 
