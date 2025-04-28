@@ -58,44 +58,34 @@ elif theme == "Light":
     """, unsafe_allow_html=True)
 
 st.sidebar.header("Filters")
-
-# 1. Filter by Type
+# Add filters
 type_filter = st.sidebar.multiselect(
     "Select Content Type:",
-    options=df['type'].unique(),
-    default=df['type'].unique()
+    options=df['type'].dropna().unique(),
+    default=df['type'].dropna().unique()
 )
 
-# 2. Filter by Country
 country_filter = st.sidebar.multiselect(
     "Select Country:",
     options=df['country'].dropna().unique(),
     default=df['country'].dropna().unique()
 )
 
-# 3. Filter by Release Year Range
-min_year = int(df['release_year'].min())
-max_year = int(df['release_year'].max())
-
+year_min = int(df['release_year'].min())
+year_max = int(df['release_year'].max())
 year_range = st.sidebar.slider(
     "Select Release Year Range:",
-    min_value=min_year,
-    max_value=max_year,
-    value=(min_year, max_year)
+    min_value=year_min,
+    max_value=year_max,
+    value=(year_min, year_max)
 )
 
-# 4. Filter by Rating
-rating_filter = st.sidebar.multiselect(
-    "Select Rating:",
-    options=df['rating'].dropna().unique(),
-    default=df['rating'].dropna().unique()
-)
-
+# Apply filters to the dataframe
 df_filtered = df[
     (df['type'].isin(type_filter)) &
     (df['country'].isin(country_filter)) &
-    (df['release_year'].between(year_range[0], year_range[1])) &
-    (df['rating'].isin(rating_filter))
+    (df['release_year'].between(year_range[0], year_range[1]))
+]
 ]
 
 # Create 2 columns
