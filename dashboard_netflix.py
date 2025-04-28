@@ -175,35 +175,32 @@ with col2:
     plt.ylabel('Duration (minutes)')
     st.pyplot(fig)
 
-# Row 9: Heatmap for Rating Distribution by Genre
+# Row 9: Top 10 Actors/Actresses
 with col1:
-    st.subheader("Rating Distribution by Genre (Heatmap)")
-    genre_rating_data = filtered_df[['rating', 'listed_in']]
-    genre_rating_data = genre_rating_data.dropna()
-    genre_rating_data = genre_rating_data.explode('listed_in')
-    
-    genre_pivot = genre_rating_data.groupby(['listed_in', 'rating']).size().unstack(fill_value=0)
-    plt.figure(figsize=(12, 6))
-    sns.heatmap(genre_pivot, cmap='YlGnBu', annot=True, fmt='d', linewidths=0.5)
-    plt.title('Rating Distribution by Genre (Heatmap)')
-    plt.xlabel('Rating')
-    plt.ylabel('Genre')
-    st.pyplot(plt)
+    st.subheader("Top 10 Actors/Actresses")
+    actor_data = filtered_df['cast'].str.split(', ', expand=True).stack().value_counts().head(10)
+    fig = px.bar(
+        x=actor_data.index,
+        y=actor_data.values,
+        labels={'x': 'Actor/Actress', 'y': 'Number of Titles'},
+        title='Top 10 Actors/Actresses on Netflix'
+    )
+    fig.update_xaxes(tickangle=45)
+    st.plotly_chart(fig)
 
-# Row 10: Most Common Genres in Movies vs TV Shows
+# Row 10: Top 10 Most Popular Titles (by Rating)
 with col2:
-    st.subheader("Most Common Genres in Movies vs TV Shows")
-    genre_counts_movies = movie_data['listed_in'].str.split(', ', expand=True).stack().value_counts()
-    genre_counts_tv_shows = tv_shows['listed_in'].str.split(', ', expand=True).stack().value_counts()
-    
-    fig = plt.figure(figsize=(12, 6))
-    sns.barplot(x=genre_counts_movies.index, y=genre_counts_movies.values, color='blue', alpha=0.6, label="Movies")
-    sns.barplot(x=genre_counts_tv_shows.index, y=genre_counts_tv_shows.values, color='orange', alpha=0.6, label="TV Shows")
-    plt.title('Most Common Genres in Movies vs TV Shows')
-    plt.xlabel('Genre')
-    plt.ylabel('Count of Titles')
-    plt.xticks(rotation=45)
-    st.pyplot(fig)
+    st.subheader("Top 10 Most Popular Titles (by Rating)")
+    top_rated_titles = filtered_df[['title', 'rating']].sort_values(by='rating', ascending=False).head(10)
+    fig = px.bar(
+        top_rated_titles,
+        x='title',
+        y='rating',
+        labels={'title': 'Title', 'rating': 'Rating'},
+        title='Top 10 Most Popular Titles on Netflix (by Rating)',
+    )
+    fig.update_xaxes(tickangle=45)
+    st.plotly_chart(fig)
 
 # Show completed app layout
 st.sidebar.markdown("---")
