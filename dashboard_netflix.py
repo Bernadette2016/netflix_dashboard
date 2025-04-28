@@ -86,7 +86,6 @@ df_filtered = df[
     (df['country'].isin(country_filter)) &
     (df['release_year'].between(year_range[0], year_range[1]))
 ]
-]
 
 # Create 2 columns
 col1, col2 = st.columns(2)
