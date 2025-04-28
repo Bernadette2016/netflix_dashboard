@@ -8,7 +8,6 @@ Original file is located at
 """
 import streamlit as st
 import pandas as pd
-import altair as alt
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
@@ -163,3 +162,48 @@ with col1:
     plt.ylabel('Release Year')
     plt.xticks(rotation=45)
     st.pyplot(fig)
+
+# Row 8: Release Year vs Duration (for Movies)
+with col2:
+    st.subheader("Release Year vs Duration (for Movies)")
+    movie_data = filtered_df[filtered_df['type'] == 'Movie']
+    movie_data['duration'] = movie_data['duration'].str.replace(' min', '').astype(float)
+    fig = plt.figure(figsize=(12, 6))
+    sns.scatterplot(x='release_year', y='duration', data=movie_data)
+    plt.title('Release Year vs Movie Duration')
+    plt.xlabel('Release Year')
+    plt.ylabel('Duration (minutes)')
+    st.pyplot(fig)
+
+# Row 9: Rating Distribution by Genre
+with col1:
+    st.subheader("Rating Distribution by Genre")
+    genre_rating_data = filtered_df[['rating', 'listed_in']]
+    genre_rating_data = genre_rating_data.dropna()
+    genre_rating_data = genre_rating_data.explode('listed_in')
+    plt.figure(figsize=(12, 6))
+    sns.countplot(x='listed_in', hue='rating', data=genre_rating_data)
+    plt.title('Rating Distribution by Genre')
+    plt.xlabel('Genre')
+    plt.ylabel('Count of Titles')
+    plt.xticks(rotation=45)
+    st.pyplot(plt)
+
+# Row 10: Most Common Genres in Movies vs TV Shows
+with col2:
+    st.subheader("Most Common Genres in Movies vs TV Shows")
+    genre_counts_movies = movie_data['listed_in'].str.split(', ', expand=True).stack().value_counts()
+    genre_counts_tv_shows = tv_shows['listed_in'].str.split(', ', expand=True).stack().value_counts()
+    
+    fig = plt.figure(figsize=(12, 6))
+    sns.barplot(x=genre_counts_movies.index, y=genre_counts_movies.values, color='blue', alpha=0.6, label="Movies")
+    sns.barplot(x=genre_counts_tv_shows.index, y=genre_counts_tv_shows.values, color='orange', alpha=0.6, label="TV Shows")
+    plt.title('Most Common Genres in Movies vs TV Shows')
+    plt.xlabel('Genre')
+    plt.ylabel('Count of Titles')
+    plt.xticks(rotation=45)
+    st.pyplot(fig)
+
+# Show completed app layout
+st.sidebar.markdown("---")
+st.sidebar.markdown("Use the filters to explore the Netflix dataset by content type and rating.")
