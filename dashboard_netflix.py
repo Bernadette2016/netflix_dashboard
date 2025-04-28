@@ -16,19 +16,24 @@ import numpy as np
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
+# Set up the Streamlit page
 st.set_page_config(
     page_title="Netflix Movies and TV Shows",
     page_icon="🎬",
     layout="wide",
-    initial_sidebar_state="expanded")
+    initial_sidebar_state="expanded"
+)
 
+# Load the dataset
 df = pd.read_csv('netflix_titles.csv')
 df['date_added'] = pd.to_datetime(df['date_added'], format='mixed', errors='coerce')
 df['year_added'] = df['date_added'].dt.year
 
+# Filter data for movies and TV shows
 movies = df[df['type'] == 'Movie'].copy()
 tv_shows = df[df['type'] == 'TV Show'].copy()
 
+# Sidebar for theme and filters
 st.sidebar.title("Netflix Dashboard")
 st.sidebar.markdown("---")
 
@@ -54,61 +59,68 @@ elif theme == "Light":
     </style>
     """, unsafe_allow_html=True)
 
+# Filters
 st.sidebar.header("Filters")
 
-# Create 2 columns
+# Filter based on Content Type (Movie or TV Show)
+content_type_filter = st.sidebar.multiselect(
+    'Select Content Type', 
+    options=df['type'].unique(), 
+    default=df['type'].unique().tolist()  # Default to all types
+)
+
+# Filter based on Rating
+rating_filter = st.sidebar.multiselect(
+    'Select Rating', 
+    options=df['rating'].unique(), 
+    default=df['rating'].unique().tolist()  # Default to all ratings
+)
+
+# Apply the filters to the data
+filtered_df = df[df['type'].isin(content_type_filter)]
+filtered_df = filtered_df[filtered_df['rating'].isin(rating_filter)]
+
+# Create 2 columns for layout
 col1, col2 = st.columns(2)
 
-# Row 1
+# Row 1: Distribution of Content Types
 with col1:
-    import plotly.graph_objects as go
-    type_counts = df['type'].value_counts()
-    fig = go.Figure(data=[go.Pie(labels=type_counts.index, values=type_counts.values, hole=.3)])
-    fig.update_layout(title_text="Distribution of Content Types", title_x=0.5)
+    type_counts = filtered_df['type'].value_counts()
+    fig = px.pie(
+        names=type_counts.index, 
+        values=type_counts.values, 
+        title="Distribution of Content Types"
+    )
     st.plotly_chart(fig)
 
+# Row 2: Trend of Movies and TV Shows Added Over Time
 with col2:
-    content_added_per_year = df.groupby(['year_added', 'type']).size().unstack(fill_value=0)
-    st.subheader("Trend of Movies and TV Shows Added Over Time")
+    content_added_per_year = filtered_df.groupby(['year_added', 'type']).size().unstack(fill_value=0)
     fig = px.line(
         content_added_per_year.reset_index(),
         x='year_added',
-        y=['Movie', 'TV Show'],
+        y=content_added_per_year.columns,
         labels={'year_added': 'Year', 'value': 'Number of Content Added'},
         title='Trend of Movies and TV Shows Added Over Time'
     )
     st.plotly_chart(fig)
 
-# Row 2
+# Row 3: Distribution of Ratings
 with col1:
-    df.replace([np.inf, -np.inf], np.nan, inplace=True)
-    df = df.dropna(subset=['release_year'])
-
-    st.subheader("Distribution of Release Year")
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-    sns.histplot(df['release_year'], color='green', bins=30, kde=False, ax=ax)
-    ax.set_title('Distribution of Release Year')
-    ax.set_xlabel('Release Year')
-    ax.set_ylabel('Movie Count')
-    st.pyplot(fig)
-
-
-with col2:
     st.subheader("Distribution of Ratings")
     plt.figure(figsize=(12, 6))
-    sns.countplot(x='rating', data=df)
+    sns.countplot(x='rating', data=filtered_df)
     plt.title('Distribution of Ratings')
     plt.xlabel('Rating')
     plt.ylabel('Number of Titles')
     plt.xticks(rotation=45)
     st.pyplot(plt)
 
-# Row 3
-with col1:
-    genre_counts = df['listed_in'].str.split(', ', expand=True).stack().value_counts()
+# Row 4: Top 10 Genres
+with col2:
+    genre_counts = filtered_df['listed_in'].str.split(', ', expand=True).stack().value_counts()
     top_genres = genre_counts.head(10)
-
+    
     st.subheader("Top 10 Genres")
     fig = px.bar(
         x=top_genres.index,
@@ -119,31 +131,33 @@ with col1:
     fig.update_xaxes(tickangle=45)
     st.plotly_chart(fig)
 
-with col2:
+# Row 5: Top 10 Directors with Most Titles on Netflix
+with col1:
     st.subheader("Top 10 Directors with Most Titles on Netflix")
     plt.figure(figsize=(12, 6))
-    sns.countplot(x='director', data=df, order=df['director'].value_counts().index[:10], palette='viridis')
+    sns.countplot(x='director', data=filtered_df, order=filtered_df['director'].value_counts().index[:10], palette='viridis')
     plt.title('Top 10 Directors with Most Titles on Netflix')
     plt.xlabel('Director')
     plt.ylabel('Number of Titles')
     plt.xticks(rotation=45)
     st.pyplot(plt)
 
-# Row 4
-with col1:
+# Row 6: Top 10 Countries with Most Titles on Netflix
+with col2:
     st.subheader("Top 10 Countries with Most Titles on Netflix")
     plt.figure(figsize=(12, 6))
-    sns.countplot(x='country', data=df, order=df['country'].value_counts().index[:10], palette='viridis')
+    sns.countplot(x='country', data=filtered_df, order=filtered_df['country'].value_counts().index[:10], palette='viridis')
     plt.title('Top 10 Countries with Most Titles on Netflix')
     plt.xlabel('Country')
     plt.ylabel('Number of Titles')
     plt.xticks(rotation=45)
     st.pyplot(plt)
 
-with col2:
+# Row 7: Relationship between Release Year and Rating
+with col1:
     st.subheader("Relationship between Release Year and Rating")
     fig = plt.figure(figsize=(12, 6))
-    sns.boxplot(x='rating', y='release_year', data=df)
+    sns.boxplot(x='rating', y='release_year', data=filtered_df)
     plt.title('Relationship between Release Year and Rating')
     plt.xlabel('Rating')
     plt.ylabel('Release Year')
