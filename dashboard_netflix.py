@@ -84,7 +84,6 @@ with col2:
 
 # Row 2
 with col1:
-with col1:
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
     df = df.dropna(subset=['release_year'])
 
