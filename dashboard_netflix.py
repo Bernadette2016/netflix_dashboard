@@ -178,15 +178,22 @@ with col2:
 # Row 9: Rating Distribution by Genre
 with col1:
     st.subheader("Rating Distribution by Genre")
+    
+    # Exploding the genre column so that each genre is counted individually
     genre_rating_data = filtered_df[['rating', 'listed_in']]
     genre_rating_data = genre_rating_data.dropna()
     genre_rating_data = genre_rating_data.explode('listed_in')
-    plt.figure(figsize=(12, 6))
-    sns.countplot(x='listed_in', hue='rating', data=genre_rating_data)
+    
+    # Create a horizontal bar plot for better readability
+    plt.figure(figsize=(12, 8))  # Larger figure size
+    sns.countplot(y='listed_in', hue='rating', data=genre_rating_data, order=genre_rating_data['listed_in'].value_counts().index)
+    
+    # Customizing plot
     plt.title('Rating Distribution by Genre')
-    plt.xlabel('Genre')
-    plt.ylabel('Count of Titles')
-    plt.xticks(rotation=45)
+    plt.xlabel('Count of Titles')
+    plt.ylabel('Genre')
+    plt.xticks(rotation=45)  # Optional if you want to rotate x-tick labels
+    plt.tight_layout()  # To ensure everything fits in the layout
     st.pyplot(plt)
 
 # Row 10: Most Common Genres in Movies vs TV Shows
