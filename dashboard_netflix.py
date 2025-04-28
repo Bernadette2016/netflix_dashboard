@@ -14,9 +14,21 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
+import os
 
 # Load data
 df = pd.read_csv('netflix_titles.csv')
+try:
+    df = pd.read_csv('netflix_titles.csv')
+except FileNotFoundError:
+    print("Error: The file 'netflix_titles.csv' was not found in the directory.")
+except pd.errors.ParserError:
+    print("Error: There was a problem parsing the CSV file.")
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+    df = pd.read_csv('netflix_titles.csv', encoding='utf-8')
+# or try:
+df = pd.read_csv('netflix_titles.csv', encoding='ISO-8859-1')
 
 # Preprocessing
 df['release_year'] = pd.to_numeric(df['release_year'], errors='coerce')
