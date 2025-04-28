@@ -41,28 +41,28 @@ theme = st.sidebar.selectbox("Select Theme", ["Light", "Dark"])
 if theme == "Dark":
     st.markdown("""
     <style>
-    body {
-        color: white;
+    .stApp {
         background-color: #1e1e1e;
+        color: white;
     }
     </style>
     """, unsafe_allow_html=True)
 elif theme == "Light":
     st.markdown("""
     <style>
-    body {
-        color: black;
+    .stApp {
         background-color: white;
+        color: black;
     }
     </style>
     """, unsafe_allow_html=True)
 
 st.sidebar.header("Filters")
 
-col1, col2, col3, col4 = st.columns(4)
-col5, col6, col7, col8 = st.columns(4)
+# Create 2 columns
+col1, col2 = st.columns(2)
 
-
+# Row 1
 with col1:
     import plotly.graph_objects as go
     type_counts = df['type'].value_counts()
@@ -71,75 +71,77 @@ with col1:
     st.plotly_chart(fig)
 
 with col2:
-    # Assuming you have a column 'type' indicating whether it's a movie or a TV show
     content_added_per_year = df.groupby(['year_added', 'type']).size().unstack(fill_value=0)
     st.subheader("Trend of Movies and TV Shows Added Over Time")
-    fig = px.line(content_added_per_year.reset_index(),
-              x='year_added',
-              y=['Movie', 'TV Show'],  # Specify columns for the lines
-              labels={'year_added': 'Year', 'value': 'Number of Content Added'},
-              title='Trend of Movies and TV Shows Added Over Time')
+    fig = px.line(
+        content_added_per_year.reset_index(),
+        x='year_added',
+        y=['Movie', 'TV Show'],
+        labels={'year_added': 'Year', 'value': 'Number of Content Added'},
+        title='Trend of Movies and TV Shows Added Over Time'
+    )
     st.plotly_chart(fig)
 
-
-with col3:
+# Row 2
+with col1:
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
     df = df.dropna(subset=['release_year'])
-
+    
     st.subheader("Distribution of Release Year")
-    fig = plt.figure(figsize=(10,5))
+    fig = plt.figure(figsize=(10, 5))
     sns.displot(df['release_year'], color='green')
     plt.title('Distribution of Release Year')
     plt.xlabel('Release Year')
     plt.ylabel('Movie Count')
     st.pyplot(fig)
 
-
-with col4:
+with col2:
     st.subheader("Distribution of Ratings")
     plt.figure(figsize=(12, 6))
     sns.countplot(x='rating', data=df)
     plt.title('Distribution of Ratings')
     plt.xlabel('Rating')
     plt.ylabel('Number of Titles')
-    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability if needed
+    plt.xticks(rotation=45)
     st.pyplot(plt)
 
-with col5:
+# Row 3
+with col1:
     genre_counts = df['listed_in'].str.split(', ', expand=True).stack().value_counts()
     top_genres = genre_counts.head(10)
 
-# Create the bar plot using Plotly Express for interactivity in Streamlit
     st.subheader("Top 10 Genres")
     fig = px.bar(
         x=top_genres.index,
         y=top_genres.values,
         labels={'x': 'Genre', 'y': 'Number of Titles'},
-        title='Top 10 Genres on Netflix',)
-    fig.update_xaxes(tickangle=45) # Rotate x-axis labels
+        title='Top 10 Genres on Netflix',
+    )
+    fig.update_xaxes(tickangle=45)
     st.plotly_chart(fig)
 
-with col6:
+with col2:
     st.subheader("Top 10 Directors with Most Titles on Netflix")
     plt.figure(figsize=(12, 6))
-    sns.countplot(x='director', data=df, order=df['director'].value_counts().index[:10], palette='viridis') #limited to top 10
+    sns.countplot(x='director', data=df, order=df['director'].value_counts().index[:10], palette='viridis')
     plt.title('Top 10 Directors with Most Titles on Netflix')
     plt.xlabel('Director')
     plt.ylabel('Number of Titles')
     plt.xticks(rotation=45)
     st.pyplot(plt)
 
-with col7:
+# Row 4
+with col1:
     st.subheader("Top 10 Countries with Most Titles on Netflix")
     plt.figure(figsize=(12, 6))
-    sns.countplot(x='country', data=df, order=df['country'].value_counts().index[:10], palette='viridis') #limited to top 10
+    sns.countplot(x='country', data=df, order=df['country'].value_counts().index[:10], palette='viridis')
     plt.title('Top 10 Countries with Most Titles on Netflix')
     plt.xlabel('Country')
     plt.ylabel('Number of Titles')
     plt.xticks(rotation=45)
     st.pyplot(plt)
 
-with col8:
+with col2:
     st.subheader("Relationship between Release Year and Rating")
     fig = plt.figure(figsize=(12, 6))
     sns.boxplot(x='rating', y='release_year', data=df)
@@ -148,4 +150,3 @@ with col8:
     plt.ylabel('Release Year')
     plt.xticks(rotation=45)
     st.pyplot(fig)
-
