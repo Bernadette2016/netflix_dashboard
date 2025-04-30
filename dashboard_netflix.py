@@ -23,11 +23,41 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Netflix Dashboard Header
+#Netflix Dashboard Header
 st.markdown(
     """
-    <div style='background-color: #e50914; padding: 20px 10px; border-radius: 10px; margin-bottom: 25px;'>
-        <h1 style='text-align: center; color: white; font-size: 40px;'>Netflix Data Analysis</h1>
+    <style>
+    .netflix-header {
+        background: linear-gradient(to right, #e50914, #b20710);
+        padding: 30px 10px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
+        animation: fadeIn 2s ease-in-out;
+    }
+    .netflix-header h1 {
+        color: white;
+        font-size: 48px;
+        font-weight: 800;
+        margin: 0;
+        font-family: 'Helvetica Neue', sans-serif;
+        letter-spacing: 1px;
+    }
+    .netflix-subtitle {
+        color: #ffffffcc;
+        font-size: 20px;
+        margin-top: 8px;
+        font-family: 'Arial', sans-serif;
+    }
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(-10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    </style>
+
+    <div class='netflix-header'>
+        <h1>Netflix Data Analysis</h1>
+        <div class='netflix-subtitle'>Explore trends, ratings, genres, and more from the Netflix catalog</div>
     </div>
     """,
     unsafe_allow_html=True
