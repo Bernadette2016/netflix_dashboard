@@ -23,6 +23,15 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Netflix Dashboard Header
+st.markdown(
+    """
+    <div style='background-color: #e50914; padding: 20px 10px; border-radius: 10px; margin-bottom: 25px;'>
+        <h1 style='text-align: center; color: white; font-size: 40px;'>Netflix Data Analysis</h1>
+    </div>
+    """,
+    unsafe_allow_html=True
+
 # Load the dataset
 df = pd.read_csv('netflix_titles.csv')
 df['date_added'] = pd.to_datetime(df['date_added'], format='mixed', errors='coerce')
