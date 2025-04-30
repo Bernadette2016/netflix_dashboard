@@ -31,6 +31,7 @@ st.markdown(
     </div>
     """,
     unsafe_allow_html=True
+)
 
 # Load the dataset
 df = pd.read_csv('netflix_titles.csv')
