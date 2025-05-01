@@ -23,25 +23,13 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom style for tab colors
-st.markdown("""
-<style>
-    .stTabs [data-baseweb="tab"] {
-        background-color: #f63366;
-        color: white;
-        font-weight: bold;
-        border-radius: 5px;
-        padding: 8px;
-    }
-    .stTabs [data-baseweb="tab"]:hover {
-        background-color: #e0245e;
-        color: white;
-    }
-</style>
-""", unsafe_allow_html=True)
-
 # Load the dataset
 df = pd.read_csv('netflix_titles.csv')
+
+# Display the first few rows of the dataset to ensure it's loaded correctly
+st.write(df.head())
+
+# Convert the 'date_added' column to datetime format and extract the 'year_added' column
 df['date_added'] = pd.to_datetime(df['date_added'], format='mixed', errors='coerce')
 df['year_added'] = df['date_added'].dt.year
 
@@ -82,7 +70,7 @@ st.sidebar.header("Filters")
 content_type_filter = st.sidebar.multiselect(
     'Select Content Type', 
     options=df['type'].unique(), 
-    default=df['type'].unique().tolist()
+    default=df['type'].unique().tolist()  # Default to all types
 )
 
 # Rating slider
@@ -197,40 +185,4 @@ with tabs[6]:
 with tabs[7]:
     st.subheader("Release Year vs Duration (for Movies)")
     movie_data = filtered_df[filtered_df['type'] == 'Movie']
-    movie_data['duration'] = movie_data['duration'].str.replace(' min', '').astype(float)
-    fig = plt.figure(figsize=(12, 6))
-    sns.scatterplot(x='release_year', y='duration', data=movie_data)
-    plt.title('Release Year vs Movie Duration')
-    plt.xlabel('Release Year')
-    plt.ylabel('Duration (minutes)')
-    st.pyplot(fig)
-
-with tabs[8]:
-    st.subheader("Rating Distribution by Genre")
-    genre_rating_data = filtered_df[['rating', 'listed_in']]
-    genre_rating_data = genre_rating_data.dropna()
-    genre_rating_data = genre_rating_data.explode('listed_in')
-    plt.figure(figsize=(12, 6))
-    sns.countplot(x='listed_in', hue='rating', data=genre_rating_data)
-    plt.title('Rating Distribution by Genre')
-    plt.xlabel('Genre')
-    plt.ylabel('Count of Titles')
-    plt.xticks(rotation=45)
-    st.pyplot(plt)
-
-with tabs[9]:
-    st.subheader("Most Common Genres in Movies vs TV Shows")
-    genre_counts_movies = movie_data['listed_in'].str.split(', ', expand=True).stack().value_counts()
-    genre_counts_tv_shows = tv_shows['listed_in'].str.split(', ', expand=True).stack().value_counts()
-    fig = plt.figure(figsize=(12, 6))
-    sns.barplot(x=genre_counts_movies.index, y=genre_counts_movies.values, color='blue', alpha=0.6, label="Movies")
-    sns.barplot(x=genre_counts_tv_shows.index, y=genre_counts_tv_shows.values, color='orange', alpha=0.6, label="TV Shows")
-    plt.title('Most Common Genres in Movies vs TV Shows')
-    plt.xlabel('Genre')
-    plt.ylabel('Count of Titles')
-    plt.xticks(rotation=45)
-    st.pyplot(fig)
-
-# Show completed app layout
-st.sidebar.markdown("---")
-st.sidebar.markdown("Use the filters to explore the Netflix dataset by content type and rating.")
+    movie_data['duration'] = movie_data['duration'].str
