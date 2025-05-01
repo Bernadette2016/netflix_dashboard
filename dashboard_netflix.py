@@ -23,7 +23,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-#Netflix Dashboard Header
+# Netflix Dashboard Header
 st.markdown(
     """
     <style>
@@ -73,7 +73,7 @@ movies = df[df['type'] == 'Movie'].copy()
 tv_shows = df[df['type'] == 'TV Show'].copy()
 
 # Sidebar for theme and filters
-st.sidebar.title("Netflix Dashboard")
+st.sidebar.markdown("## 🎛️ Filter Your View")
 st.sidebar.markdown("---")
 
 # Add theme selection to the sidebar
@@ -105,24 +105,32 @@ st.sidebar.header("Filters")
 content_type_filter = st.sidebar.multiselect(
     'Select Content Type', 
     options=df['type'].unique(), 
-    default=df['type'].unique().tolist()  # Default to all types
+    default=df['type'].unique().tolist()
 )
 
-# Filter based on Rating
-rating_filter = st.sidebar.multiselect(
-    'Select Rating', 
-    options=df['rating'].unique(), 
-    default=df['rating'].unique().tolist()  # Default to all ratings
+# Filter based on Release Year (Slider)
+min_year = int(df['release_year'].min())
+max_year = int(df['release_year'].max())
+
+release_year_range = st.sidebar.slider(
+    'Select Release Year Range',
+    min_value=min_year,
+    max_value=max_year,
+    value=(min_year, max_year)
 )
 
 # Apply the filters to the data
-filtered_df = df[df['type'].isin(content_type_filter)]
-filtered_df = filtered_df[filtered_df['rating'].isin(rating_filter)]
+filtered_df = df[
+    (df['type'].isin(content_type_filter)) &
+    (df['release_year'].between(release_year_range[0], release_year_range[1]))
+]
 
-# Create 2 columns for layout
+# Section: Overview
+st.markdown("## 📊 Overview")
+st.markdown("---")
+
 col1, col2 = st.columns(2)
 
-# Row 1: Distribution of Content Types
 with col1:
     type_counts = filtered_df['type'].value_counts()
     fig = px.pie(
@@ -132,7 +140,6 @@ with col1:
     )
     st.plotly_chart(fig)
 
-# Row 2: Trend of Movies and TV Shows Added Over Time
 with col2:
     content_added_per_year = filtered_df.groupby(['year_added', 'type']).size().unstack(fill_value=0)
     fig = px.line(
@@ -144,7 +151,10 @@ with col2:
     )
     st.plotly_chart(fig)
 
-# Row 3: Distribution of Ratings
+# Section: Content Insights
+st.markdown("## 🎬 Content Insights")
+st.markdown("---")
+
 with col1:
     st.subheader("Distribution of Ratings")
     plt.figure(figsize=(12, 6))
@@ -155,11 +165,9 @@ with col1:
     plt.xticks(rotation=45)
     st.pyplot(plt)
 
-# Row 4: Top 10 Genres
 with col2:
     genre_counts = filtered_df['listed_in'].str.split(', ', expand=True).stack().value_counts()
     top_genres = genre_counts.head(10)
-    
     st.subheader("Top 10 Genres")
     fig = px.bar(
         x=top_genres.index,
@@ -170,7 +178,10 @@ with col2:
     fig.update_xaxes(tickangle=45)
     st.plotly_chart(fig)
 
-# Row 5: Top 10 Directors with Most Titles on Netflix
+# Section: Creators and Production
+st.markdown("## 🎥 Creators and Production")
+st.markdown("---")
+
 with col1:
     st.subheader("Top 10 Directors with Most Titles on Netflix")
     plt.figure(figsize=(12, 6))
@@ -181,7 +192,6 @@ with col1:
     plt.xticks(rotation=45)
     st.pyplot(plt)
 
-# Row 6: Top 10 Countries with Most Titles on Netflix
 with col2:
     st.subheader("Top 10 Countries with Most Titles on Netflix")
     plt.figure(figsize=(12, 6))
@@ -192,7 +202,10 @@ with col2:
     plt.xticks(rotation=45)
     st.pyplot(plt)
 
-# Row 7: Relationship between Release Year and Rating
+# Section: Time-Based Analysis
+st.markdown("## 🕒 Time-Based Analysis")
+st.markdown("---")
+
 with col1:
     st.subheader("Relationship between Release Year and Rating")
     fig = plt.figure(figsize=(12, 6))
@@ -203,7 +216,6 @@ with col1:
     plt.xticks(rotation=45)
     st.pyplot(fig)
 
-# Row 8: Release Year vs Duration (for Movies)
 with col2:
     st.subheader("Release Year vs Duration (for Movies)")
     movie_data = filtered_df[filtered_df['type'] == 'Movie']
@@ -215,7 +227,10 @@ with col2:
     plt.ylabel('Duration (minutes)')
     st.pyplot(fig)
 
-# Row 9: Top 10 Actors/Actresses
+# Section: Talent and Popular Titles
+st.markdown("## 🌟 Talent and Popular Titles")
+st.markdown("---")
+
 with col1:
     st.subheader("Top 10 Actors/Actresses")
     actor_data = filtered_df['cast'].str.split(', ', expand=True).stack().value_counts().head(10)
@@ -228,10 +243,9 @@ with col1:
     fig.update_xaxes(tickangle=45)
     st.plotly_chart(fig)
 
-# Row 10: Top 10 Most Popular Titles (by Rating)
 with col2:
     st.subheader("Top 10 Most Popular Titles (by Rating)")
-    top_rated_titles = filtered_df[['title', 'rating']].sort_values(by='rating', ascending=False).head(10)
+    top_rated_titles = filtered_df[['title', 'rating']].dropna().head(10)
     fig = px.bar(
         top_rated_titles,
         x='title',
@@ -244,4 +258,4 @@ with col2:
 
 # Show completed app layout
 st.sidebar.markdown("---")
-st.sidebar.markdown("Use the filters to explore the Netflix dataset by content type and rating.")
+st.sidebar.markdown("Use the filters to explore the Netflix dataset by content type and release year.")
