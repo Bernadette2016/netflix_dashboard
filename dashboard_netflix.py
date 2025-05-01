@@ -71,7 +71,6 @@ content_type_filter = st.sidebar.multiselect(
 # Filter based on Release Year (Slider)
 min_year = int(df['release_year'].min())
 max_year = int(df['release_year'].max())
-
 year_range = st.sidebar.slider(
     "Select Release Year Range",
     min_value=min_year,
@@ -85,11 +84,6 @@ filtered_df = filtered_df[
     (filtered_df['release_year'] >= year_range[0]) &
     (filtered_df['release_year'] <= year_range[1])
 ]
-
-
-# Apply the filters to the data
-filtered_df = df[df['type'].isin(content_type_filter)]
-filtered_df = filtered_df[filtered_df['rating'].isin(rating_filter)]
 
 
 # Apply the filters to the data
