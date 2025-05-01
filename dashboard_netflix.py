@@ -90,6 +90,11 @@ filtered_df = filtered_df[
 filtered_df = df[df['type'].isin(content_type_filter)]
 filtered_df = filtered_df[filtered_df['rating'].isin(rating_filter)]
 
+
+# Apply the filters to the data
+filtered_df = df[df['type'].isin(content_type_filter)]
+filtered_df = filtered_df[filtered_df['rating'].isin(rating_filter)]
+
 # Create 2 columns for layout
 col1, col2 = st.columns(2)
 
